@@ -3,8 +3,8 @@ import { Octokit, App } from "https://esm.sh/octokit";
 window.octokit = new Octokit();
 
 const r = await window.octokit.request("GET /repos/{owner}/{repo}/releases", {
-    owner: "tasmota",
-    repo: "install",
+    owner: "TanNhatCMS",
+    repo: "tasmota-install",
     per_page: 999
   });
 
