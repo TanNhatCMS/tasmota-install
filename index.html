@@ -40,10 +40,22 @@
     </style>
     <script
       type="module"
-      src="https://unpkg.com/tasmota-esp-web-tools@9.0.2/dist/web/install-button.js?module"
+      src="https://tasmota.tannhatcms.io.vn/dist/web/install-button.js?module&v=11.1.9"
     ></script>
     <!-- <script type="module">import * as Module from "./js/tasmota_gh_helper.js"</script> -->
     <script>
+        // Wait for ESP Web Tools to load and expose the CORS proxy function
+        async function corsProxyFetch(url, options) {
+          // Clean the URL first
+          url = url.trim();
+
+          // Wait for ESP Web Tools to be available
+          while (!window.espWebToolsCorsProxyFetch) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+
+          return window.espWebToolsCorsProxyFetch(url, options);
+        }
 
         var releases = null;
         var date_filter = null;
@@ -95,15 +107,38 @@
             while(sel.childElementCount!=0){
               sel.removeChild(sel.childNodes[0]);
             }
-            let lines = data.split("\n").reverse();
+            let lines = data.split("\n").filter(line => line.length >= 10);
             console.log(data);
-            var duplicates = [];
-            for (opt_group of lines){
-                if (opt_group.length < 10) continue;
-                if(duplicates.includes(opt_group)){
-                  continue;
-                }
-                duplicates.push(opt_group);
+            // Remove duplicates while preserving original order information
+          var uniqueLines = [];
+          var seenLines = new Set();
+          lines.forEach((line, index) => {
+            if (!seenLines.has(line)) {
+              uniqueLines.push({ line: line, originalIndex: index });
+              seenLines.add(line);
+            }
+          });
+
+          // Sort by date (descending), then by original order (descending - later entries are newer)
+          uniqueLines.sort((a, b) => {
+            // Extract date from format: YYYY-MM-DD.{d|r}.commit
+            const dateA = a.line.split(".")[0];
+            const dateB = b.line.split(".")[0];
+
+            // Primary sort: by date descending (newest first)
+            const dateCompare = dateB.localeCompare(dateA);
+            if (dateCompare !== 0) {
+              return dateCompare;
+            }
+
+            // Secondary sort: if same date, by original index descending (later entries are newer)
+            return b.originalIndex - a.originalIndex;
+          });
+
+          // Extract just the line strings for further processing
+          uniqueLines = uniqueLines.map(item => item.line);
+
+          for (opt_group of uniqueLines) {
                 var og=document.createElement('option');
                 const tag_data = opt_group.split(".");
                 if(DateIsNotSelected(tag_data[0])){
@@ -116,7 +151,7 @@
                 og.value = opt_group;
 
                 var build = "Pre-release:\n"
-                if(tag_data=="r"){
+                if (tag_data[1] == "r") {
                   build = "Release:\n"
                 }
                 og.title = build;
@@ -161,10 +196,9 @@
                 sel.removeChild(sel.childNodes[0]);
             }
             sel.appendChild(first);
-            for(const [year,v] of Object.entries(date_filter)){
-                if(year == ""){
-                        continue;
-                    }
+            const years = Object.keys(date_filter).filter(year => year !== "").sort((a, b) => b - a);
+
+            for (const year of years) {
                 var o=document.createElement('option');
                 o.label = year;
                 o.value = year;
@@ -190,7 +224,9 @@
             if(year == null || year == "all" ){
                 return;
             }
-            for(const [month,v] of Object.entries(date_filter[year])){
+            const months = Object.keys(date_filter[year]).sort((a, b) => a - b);
+
+            for (const month of months) {
                 var o=document.createElement('option');
                 o.label = month;
                 o.value = month;
@@ -215,7 +251,9 @@
             if(year == null || month == null || year == "all" || month == "all"){
                 return;
             }
-            for(day of date_filter[year][month]){
+            const days = date_filter[year][month].sort((a, b) => a - b);
+
+            for (day of days) {
                 var o=document.createElement('option');
                 o.label = day;
                 o.value = day;
@@ -268,37 +306,49 @@
             var el = document.createElement('p');
             el.innerHTML = "To access our GitHub releases page and directly flash firmware binaries<br>from there including older versions<br>you have to turn off CORS in your browser.<br>(i.e. with browser extension: CORS unblock)";
             sel.replaceWith(el);
-            fetch('https://raw.githubusercontent.com/tasmota/install/firmware/manifests.json')
+            corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/manifests.json')
             .then(response => response.json())
             .then(data => makeVariantSelector(data));
         }
 
         function getLatestTag(){
-            fetch('https://raw.githubusercontent.com/tasmota/install/firmware/tag_latest.txt')
+            corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/tag_latest.txt')
             .then(x => x.text())
             .then(t =>testCORS(t));
         }
 
         async function testCORS(t){
-          try{
-            const resp = await fetch('https://github.com/tasmota/install/releases/download/'+ t + '/manifests_release.json', {mode:"cors"
-            });
-            console.log(resp);
-          }
-          catch(error){
-            console.log("CORS is blocking");
-            useFallback();
-            return;
-          }
-          console.log("CORS is not blocking");
+          // With CORS proxy, we don't need to test - just use it directly
+          console.log("Using CORS proxy for all requests");
           initVariantSelector(t);
-          fetch('https://raw.githubusercontent.com/tasmota/install/firmware/tag.txt')
-          .then(x => x.text())
-          .then(t => {makeReleaseSelector(t,"all"); makeDateSelector(t);})
+
+          // Load both development and release tags
+          const devTagsPromise = corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/tag.txt')
+            .then(x => x.text());
+          const releaseTagsPromise = corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/tag_r.txt')
+            .then(x => x.text());
+
+          // Wait for both to load
+          Promise.all([devTagsPromise, releaseTagsPromise])
+            .then(([devTags, releaseTags]) => {
+              // Combine both tag lists
+              const combinedTags = devTags + '\n' + releaseTags;
+              makeReleaseSelector(combinedTags, "all");
+              makeDateSelector(combinedTags);
+            })
+            .catch(error => {
+              console.error("Error loading tags:", error);
+              // Fallback to just dev tags if release tags fail
+              corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/tag.txt')
+                .then(x => x.text())
+                .then(t => { makeReleaseSelector(t, "all"); makeDateSelector(t); });
+            });
         }
 
         function initVariantSelector(tag){
-            fetch('https://github.com/tasmota/install/releases/download/'+ tag + '/manifests_release.json')
+          // Clean the tag - remove whitespace and newlines
+          tag = tag.trim();
+          corsProxyFetch('https://github.com/tannhatcms/tasmota-install/releases/download/' + tag + '/manifests_release.json')
             .then(response => response.json())
             .then(data => makeVariantSelector(data));
             getFirmwareVersion(tag);
@@ -347,7 +397,7 @@
         function getFirmwareVersion(tag){
             let commit = tag.split(".")[2];
             console.log("Commit:____________",commit);
-            fetch("https://raw.githubusercontent.com/arendst/Tasmota/"+commit+"/tasmota/include/tasmota_version.h").then(x=>x.text()).then(t=>printFirmwareVersion(t))
+            corsProxyFetch("https://raw.githubusercontent.com/TanNhatCMS/Tasmota/"+commit+"/tasmota/include/tasmota_version.h").then(x=>x.text()).then(t=>printFirmwareVersion(t))
         }
 
         function printFirmwareVersion(text_data){
@@ -418,7 +468,17 @@
         window.addEventListener("load", function(event) {
             window.dropArea = document.getElementById("drop-area");
             prepareDropZone();
-            getLatestTag();
+            // Wait for ESP Web Tools module to load before making any fetch calls
+            function initializeApp() {
+              if (window.espWebToolsCorsProxyFetch) {
+                console.log("ESP Web Tools loaded successfully");
+                getLatestTag();
+              } else {
+              console.log("Waiting for ESP Web Tools to load...");
+              setTimeout(initializeApp, 50);
+            }
+          }
+          initializeApp();
             
             // Baud rate selection
             const baudRateSelect = document.getElementById('baudRate');
@@ -450,7 +510,7 @@
                 if(button.shadowRoot.firstChild.name == 'activate'){
                     //success: add the select picker and some info
                     const selectEl = document.querySelector("#pick-variant-selector");
-                    button.manifest = "https://tasmota.github.io/install/manifest_ext/release.tasmota.manifest.json";
+                    button.manifest = "https://raw.githubusercontent.com/TanNhatCMS/tasmota-install/firmware/manifest_ext/release.tasmota.manifest.json";
                     selectEl.addEventListener("change", () => {
                         button.manifest = selectEl.value;
                         console.log(button.manifest);
@@ -522,7 +582,7 @@
     <button id="fileElem" accept=".bin" onclick="openFileDialog()">Upload factory.bin</button>
     <div style='text-align:right;font-size:11px;'>
       <hr/>
-      <a href="https://esphome.github.io/esp-web-tools/" target='_blank' style='color:#aaa;'>Tasmota Installer inspired by ESP Web Tools</a>
+      <a href="https://tasmota.tannhatcms.io.vn/" target='_blank' style='color:#aaa;'>Tasmota Installer inspired by ESP Web Tools</a>
     </div>
 
     </div>
