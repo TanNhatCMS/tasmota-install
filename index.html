@@ -59,7 +59,7 @@
 
         var releases = null;
         var date_filter = null;
-        var build_filter = ["d","r"];
+        var build_filter = null;
         var local_file = null
         var virtual_manifest = {"name": "","version": "","new_install_prompt_erase": true,"builds": [
           { "chipFamily": "ESP32","parts": [{ "path": "", "offset": 0 }]},
@@ -310,7 +310,7 @@
             .then(response => response.json())
             .then(data => makeVariantSelector(data));
         }
-
+    
         function getLatestTag(){
             corsProxyFetch('https://raw.githubusercontent.com/tannhatcms/tasmota-install/firmware/tag_latest.txt')
             .then(x => x.text())
@@ -472,7 +472,8 @@
             function initializeApp() {
               if (window.espWebToolsCorsProxyFetch) {
                 console.log("ESP Web Tools loaded successfully");
-                getLatestTag();
+                //getLatestTag();
+                useFallback();
               } else {
               console.log("Waiting for ESP Web Tools to load...");
               setTimeout(initializeApp, 50);
