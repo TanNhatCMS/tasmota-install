@@ -1,3 +1,7 @@
 [submodule "templates"]
 	path = templates
 	url = https://github.com/blakadder/templates.git
+
+[submodule "esp-web-tools"]
+	path = esp-web-tools
+	url = https://github.com/TanNhatCMS/esp-web-tools.git
