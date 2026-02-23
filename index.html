@@ -40,7 +40,7 @@
     </style>
     <script
       type="module"
-      src="./esp-web-tools/dist/web/install-button.js?module&v=11.1.9"
+      src="https://tasmota.tannhatcms.io.vn/esp-web-tools/dist/web/install-button.js?module&v=11.1.9"
     ></script>
     <!-- <script type="module">import * as Module from "./js/tasmota_gh_helper.js"</script> -->
     <script>
@@ -348,7 +348,7 @@
         function initVariantSelector(tag){
           // Clean the tag - remove whitespace and newlines
           tag = tag.trim();
-          corsProxyFetch('https://github.com/tannhatcms/tasmota-install/releases/download/' + tag + '/manifests_release.json')
+          corsProxyFetch('https://github.com/tasmota/install/releases/download/' + tag + '/manifests_release.json')
             .then(response => response.json())
             .then(data => makeVariantSelector(data));
             getFirmwareVersion(tag);
