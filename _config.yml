@@ -1,0 +1,4 @@
+title: Install Tasmota
+exclude:
+  - templates/
+  - README.md
