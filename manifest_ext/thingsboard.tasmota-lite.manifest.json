@@ -8,7 +8,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32s3-thingsboard-lite.factory.bin",
+                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard-lite.factory.bin",
                     "offset": 0
                 }
             ]
