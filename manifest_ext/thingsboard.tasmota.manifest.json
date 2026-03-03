@@ -8,7 +8,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32-thingsboard.bin",
+                    "path": "../firmware/thingsboard/tasmota32-thingsboard.factory.bin",
                     "offset": 0
                 }
             ]
@@ -18,7 +18,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard.bin",
+                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard.factory.bin",
                     "offset": 0
                 }
             ]
@@ -28,7 +28,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard.bin",
+                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard.factory.bin",
                     "offset": 0
                 }
             ]

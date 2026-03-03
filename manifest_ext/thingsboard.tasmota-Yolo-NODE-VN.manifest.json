@@ -8,7 +8,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard-Yolo-Node-VN.bin",
+                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard-Yolo-Node-VN.factory.bin",
                     "offset": 0
                 }
             ]

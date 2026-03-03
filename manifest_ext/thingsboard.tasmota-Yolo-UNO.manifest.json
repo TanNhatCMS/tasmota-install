@@ -8,7 +8,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard-Yolo-UNO.bin",
+                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard-Yolo-UNO.factory.bin",
                     "offset": 0
                 }
             ]

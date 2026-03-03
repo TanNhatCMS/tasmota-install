@@ -8,7 +8,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32-thingsboard-VN.bin",
+                    "path": "../firmware/thingsboard/tasmota32-thingsboard-VN.factory.bin",
                     "offset": 0
                 }
             ]
@@ -18,7 +18,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard-VN.bin",
+                    "path": "../firmware/thingsboard/tasmota32c3-thingsboard-VN.factory.bin",
                     "offset": 0
                 }
             ]
@@ -28,7 +28,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard-VN.bin",
+                    "path": "../firmware/thingsboard/tasmota32s3psram-thingsboard-VN.factory.bin",
                     "offset": 0
                 }
             ]
@@ -38,7 +38,7 @@
             "improv": true,
             "parts": [
                 {
-                    "path": "../firmware/thingsboard/tasmota1M-thingsboard-VN.bin",
+                    "path": "../firmware/thingsboard/tasmota1M-thingsboard-VN.bin.gz",
                     "offset": 0
                 }
             ]
