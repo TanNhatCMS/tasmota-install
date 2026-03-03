@@ -21,6 +21,13 @@
             ]
         },
         {
+            "path": "https://tasmota.tannhatcms.io.vn/manifest_ext/thingsboard.tasmota-lite.manifest.json",
+            "name": "Tasmota lite with ThingsBoard support (English)",
+            "chipFamilies": [
+                "ESP32-S3"
+            ]
+        }, 
+        {
             "path": "https://tasmota.tannhatcms.io.vn/manifest_ext/thingsboard.tasmota-Yolo-UNO.manifest.json",
             "name": "Tasmota with ThingsBoard support for Yolo UNO (English)",
             "chipFamilies": [

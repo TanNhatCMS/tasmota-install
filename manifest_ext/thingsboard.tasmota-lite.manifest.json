@@ -1,0 +1,17 @@
+{
+    "name": "Tasmota lite with ThingsBoard support (English)",
+    "new_install_prompt_erase": true,
+    "new_install_improv_wait_time": 10,
+    "builds": [
+        {
+            "chipFamily": "ESP32-S3",
+            "improv": true,
+            "parts": [
+                {
+                    "path": "../firmware/thingsboard/tasmota32s3-thingsboard-lite.factory.bin",
+                    "offset": 0
+                }
+            ]
+        }
+    ]
+}
